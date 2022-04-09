@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putBoolean("Shooter On?", shooterBool);
     */
-    
+
   }
 
   /**
