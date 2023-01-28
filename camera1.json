@@ -98,6 +98,41 @@
               "_source0": "network_table:///SmartDashboard/Auto choices",
               "_title": "Auto choices"
             }
+          },
+          "0,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Ready to Fire?",
+              "_title": "Ready to Fire?",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "5,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Match Time Now",
+              "_title": "Match Time Now"
+            }
+          },
+          "6,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Current t/r",
+              "_title": "Current t/r"
+            }
           }
         }
       }
@@ -135,34 +170,85 @@
                 {
                   "_type": "Motor Controller",
                   "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [5]",
-                  "_title": "/LiveWindow/Ungrouped/Talon FX [5]",
+                  "_title": "Talon FX [5]",
                   "Visuals/Orientation": "HORIZONTAL"
                 },
                 {
                   "_type": "Motor Controller",
                   "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [9]",
-                  "_title": "/LiveWindow/Ungrouped/Talon FX [9]",
+                  "_title": "Talon FX [9]",
                   "Visuals/Orientation": "HORIZONTAL"
                 },
                 {
                   "_type": "Motor Controller",
                   "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [6]",
-                  "_title": "/LiveWindow/Ungrouped/Talon FX [6]",
+                  "_title": "Talon FX [6]",
                   "Visuals/Orientation": "HORIZONTAL"
                 },
                 {
                   "_type": "Motor Controller",
                   "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [8]",
-                  "_title": "/LiveWindow/Ungrouped/Talon FX [8]",
+                  "_title": "Talon FX [8]",
                   "Visuals/Orientation": "HORIZONTAL"
                 },
                 {
                   "_type": "Motor Controller",
                   "_source0": "network_table:///LiveWindow/Ungrouped/Talon FX [7]",
-                  "_title": "/LiveWindow/Ungrouped/Talon FX [7]",
+                  "_title": "Talon FX [7]",
                   "Visuals/Orientation": "HORIZONTAL"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Spark[1]/Value",
+                  "_title": "LiveWindow/Ungrouped/Spark[1]/Value"
+                },
+                {
+                  "_type": "Differential Drivebase",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/DifferentialDrive[2]",
+                  "_title": "LiveWindow/Ungrouped/DifferentialDrive[2]",
+                  "Wheels/Number of wheels": 4,
+                  "Wheels/Wheel diameter": 80.0,
+                  "Visuals/Show velocity vectors": true
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [7]/Value",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [7]/Value"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [2]/Value",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [2]/Value"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Servo[2]/Value",
+                  "_title": "LiveWindow/Ungrouped/Servo[2]/Value"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [1]/Value",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [1]/Value"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [0]/Value",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [0]/Value"
                 }
               ]
+            }
+          },
+          "2,0": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "Subsystem Layout",
+              "_source0": "network_table:///LiveWindow/DriveSub",
+              "_title": "DriveSub",
+              "Layout/Label position": "BOTTOM",
+              "_children": []
             }
           }
         }

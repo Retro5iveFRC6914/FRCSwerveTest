@@ -18,28 +18,22 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+
 public class Robot extends TimedRobot {
 
-  double shooterTicks = 5700;
-  double indexSpeed = 0.7;
-  double intakeSpeed = 0.9;
 
-  boolean toggle = false;
-  boolean shooterBool;
-
-  WPI_TalonFX m_leftF = new WPI_TalonFX(1);
-  WPI_TalonFX m_leftB = new WPI_TalonFX(3);
+  WPI_TalonFX m_leftF = new WPI_TalonFX(5);
+  WPI_TalonFX m_leftB = new WPI_TalonFX(2);
   MotorControllerGroup left = new MotorControllerGroup(m_leftF, m_leftB);
 
-  WPI_TalonFX m_rightF = new WPI_TalonFX(2);
-  WPI_TalonFX m_rightB = new WPI_TalonFX(4);
+  WPI_TalonFX m_rightF = new WPI_TalonFX(4);
+  WPI_TalonFX m_rightB = new WPI_TalonFX(3);
   MotorControllerGroup right = new MotorControllerGroup(m_rightF, m_rightB);
 
   DifferentialDrive tankDrive = new DifferentialDrive(left, right);
@@ -54,12 +48,26 @@ public class Robot extends TimedRobot {
   Joystick rightStick = new Joystick(1);
   GenericHID mechPad = new GenericHID(2);
 
-  Timer timer = new Timer();
-  int kSlotIdx = 0;
-  int kPIDLoopIdx = 0;
-  int kTimeoutMs = 10;
 
-  public boolean readyToFire;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   private static final String kDefaultAuto = "Default";
@@ -73,29 +81,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-
-    right.setInverted(true);
-    CameraServer.startAutomaticCapture();
-
-    shooter.setInverted(true);
-    shooter.configFactoryDefault();
-
-    shooter.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
-    shooter.setSensorPhase(true);
-
-    shooter.configNominalOutputForward(0, kTimeoutMs);
-    shooter.configNominalOutputReverse(0, kTimeoutMs);
-    shooter.configPeakOutputForward(1, kTimeoutMs);
-    shooter.configPeakOutputReverse(-1, kTimeoutMs);
-
-    shooter.config_kF(kPIDLoopIdx, 0.5, kTimeoutMs);
-    shooter.config_kP(kPIDLoopIdx, 0.5, kTimeoutMs);
-    shooter.config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-    shooter.config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
   }
 
   /**
@@ -106,24 +94,7 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {
-
-    /*double shooterSpeed = shooter.getSelectedSensorVelocity();
-
-    if(shooterSpeed >= 10000){
-
-      shooterBool = true;
-
-    }else{
-
-      shooterBool = false;
-
-    }
-
-    SmartDashboard.putBoolean("Shooter On?", shooterBool);
-    */
-
-  }
+  public void robotPeriodic() {}
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -140,14 +111,11 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    timer.reset();
-    timer.start();
-    
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() { //autonomous = 15
+  public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
@@ -156,41 +124,7 @@ public class Robot extends TimedRobot {
       default:
         // Put default auto code here
         break;
-
-    } 
-
-        if(Timer.getMatchTime() > 11.0 && Timer.getMatchTime() < 15.0){
-          
-          shooter.set(TalonFXControlMode.Velocity, shooterTicks);
-
-        }else if(Timer.getMatchTime() > 8.0 && Timer.getMatchTime() < 11.0){
-
-          index.set(-1.0);
-          intake.set(1);
-
-        }else if(Timer.getMatchTime() > 6.0 && Timer.getMatchTime() < 8.0){
-
-          index.set(0);
-          shooter.set(0);
-          intake.set(0);
-          tankDrive.tankDrive(0.6, 0.6);
-
-        }else if(Timer.getMatchTime() == 6.0){
-
-          tankDrive.tankDrive(0, 0);
-
-        }else{
-
-          index.set(0);
-          shooter.set(0);
-          tankDrive.tankDrive(0, 0);
-          intake.set(0);
-
-        }
-    
-
-    
-
+    }
   }
 
   /** This function is called once when teleop is enabled. */
@@ -199,25 +133,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-
-      tankDrive.tankDrive(rightStick.getRawAxis(1), leftStick.getRawAxis(1));
-      SmartDashboard.putNumber("Current t/r", shooter.getSelectedSensorVelocity());
-      SmartDashboard.putBoolean("Ready to Fire?", readyToFire);
-      shooterFunction();
-      indexFunction();
-      intakeFunction();
-      climberFunction();
-      climber2Function();
-
-      if(shooter.getSelectedSensorVelocity() >= 5000){
-        readyToFire = true;
-      }
-      else{
-        readyToFire = false;
-      }
-
-  }
+  public void teleopPeriodic() {}
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -242,88 +158,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
-
-  public void shooterFunction(){
-    if(mechPad.getRawButtonPressed(3)){
-
-      if(toggle){
-        
-        shooter.set(0);
-        toggle = false;
-      
-      }else{
-
-        shooter.set(ControlMode.Velocity, shooterTicks);
-        toggle = true;
-      }
-    }
-  }
-
-  public void indexFunction(){
-
-    if(mechPad.getRawButton(8)){
-
-      index.set(indexSpeed);
-
-    }else if(mechPad.getRawButton(6)){
-
-      index.set(-(indexSpeed));
-
-    }else {
-
-      index.set(0);
-    }
-    
-  }
-
-  public void intakeFunction(){
-
-    if(mechPad.getRawButton(7)){
-
-      intake.set(intakeSpeed);
-
-    }else if(mechPad.getRawButton(5)){
-
-      intake.set(-(intakeSpeed));
-
-    }else{
-
-      intake.set(0);
-
-    }
-  }
-
-  public void climberFunction(){
-    
-    if(rightStick.getRawButton(1)){
-
-      climber.set(-0.7);
-
-    }else if(leftStick.getRawButton(1)){
-
-      climber.set(1);
-
-    }else{
-
-      climber.set(0);
-
-    }
-  }
-
-  public void climber2Function(){
-
-    if(rightStick.getRawButton(4)){
-      
-      climber2.set(0.8);
-
-    }else if(rightStick.getRawButton(3)){
-
-      climber2.set(-0.5);
-
-    }else{
-
-      climber2.set(0);
-
-    }
-  }
 }

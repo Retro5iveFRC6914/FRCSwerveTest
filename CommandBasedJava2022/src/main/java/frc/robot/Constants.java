@@ -14,35 +14,63 @@ package frc.robot;
  */
 public final class Constants {
 
-    double shooterTicks = 5700;
-    double indexSpeed = 0.7;
-    double intakeSpeed = 0.9;
+    public static final class speed {
 
-    boolean toggle = false;
-    boolean shooterBool;
+        double shooterTicks = 5700;
+        double indexSpeed = 0.7;
+        double intakeSpeed = 0.9;
 
-    //drivetrain IDs
-    int leftFID = 1;
-    int leftBID = 3;
-    int rightFID = 2;
-    int rightBID = 4;
+    }
 
-    //mechanism IDs
-    int shooterID = 7;
-    int climberID = 9;
-    int climber2ID = 6;
-    int indexID = 8;
-    int intakeID = 5;
+    public static final class bools{
 
-    //joystick IDs
-    int leftStickID = 0;
-    int rightStickID = 1;
-    int mechPadID = 2;
+        boolean toggle = false;
+        boolean shooterBool;
 
-    //PID numbers
-    int kSlotIdx = 0;
-    int kPIDLoopIdx = 0;
-    int kTimeoutMs = 10;
+    }
+
+
+    public static final class driveTrainIDs{
+
+        //drivetrain IDs
+        public static int leftFID = 1;
+        public static int leftBID = 3;
+        public static int rightFID = 2;
+        public static int rightBID = 4;
+
+    }
+
+
+    public static final class mechanismIDs{
+
+        //mechanism IDs
+        public static int shooterID = 7;
+        public static int climberID = 9;
+        public static int climber2ID = 6;
+        public static int indexID = 8;
+        public static int intakeID = 5;
+
+    }
+
+    public static final class joystickIDs{
+
+        //joystick IDs
+        public static int leftStickID = 0;
+        public static int rightStickID = 1;
+        public static int mechPadID = 2;
+        
+    }
+
+
+    public static final class PIDConstants{
+
+        //PID numbers
+        public static int kSlotIdx = 0;
+        public static int kPIDLoopIdx = 0;
+        public static int kTimeoutMs = 10;
+
+    }
+
 
 
 }
