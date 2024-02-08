@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": null,
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "startToScore1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "grabNote1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "noteToScore1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "grabNote2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "noteToScore2"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
