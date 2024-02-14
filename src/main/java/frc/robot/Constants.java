@@ -128,8 +128,39 @@ public final class Constants {
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
-    }
 
+    
+
+    }
+    public static final class IntakeConstants {
+        // Hinge
+            public static final int intakeInhaleId = 13;
+            public static final int intakeExhaleId = 7;
+            public static final double hingeP = 2; 
+            public static final double hingeI = 0.00;
+            public static final double hingeD = 0;
+    
+            public static final double hingeUp = 0.51;
+            public static final double hingeShoot = 0.572668;
+            public static final double hingeDown = 0.803; //0.808;
+    
+    
+            // Spaghetti
+            public static final int intakeId = 6;
+    
+            // Intake speeds
+            public static final double noteSpeed = 0.75;
+            public static final double vomitSpeed = -1.0;
+    
+            public static final int sensorId = 9;
+    
+            // Shooter speeds
+            public static final double topCubeSpeed = -1.0;
+            public static final double midCubeSpeed = -0.55;
+            public static final double lowCubeSpeed = -0.4;
+    
+    
+        }
     public static final class AutoConstants { //TODO: The below constants are used in the example auto, and must be tuned to specific robot
         public static final double kMaxSpeedMetersPerSecond = 3;
         public static final double kMaxAccelerationMetersPerSecondSquared = 3;
@@ -145,4 +176,74 @@ public final class Constants {
             new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+    public static final class ArmConstants {
+        
+        public static final int Rotate1ID = 5;
+        public static final int Rotate2Id = 14;
+
+        // Arm lengths
+        public static final double bottomArmLength = 5; 
+        public static final double topArmLength = 5; 
+
+        //Arm Origin Length. The Origin of the arm is located how far from the back bumbers and arm.
+        public static final double armOriginXOffset = .3326;
+        public static final double armOriginYOffset = 1.07;
+
+        // Gear ratios
+        public static final double gearRatio = 1;
+
+        // Rotate2 PID
+        public static final double Rotate2UpP = 24;
+        public static final double Rotate2DownP = 0;
+        public static final double Rotate2I = 3;
+        public static final double Rotate2D = 0.1;
+
+        // Rotate1 PID
+        public static final double Rotate1UpP = 4.0;
+        public static final double Rotate1DownP = 4.0;
+        public static final double Rotate1I = 0;
+        public static final double Rotate1D = 0;
+
+        // Positions
+
+        // Home Position
+        public static final double homeRotate1 = 312.9;
+        
+        // Ready to recieve
+        public static final double readyRotate1 = 166.16;
+
+
+        // Note
+        public static final double highNoteRotate1 = 163.3;
+
 }
+//Shooter Constants
+public static final int kSlotIdx = 0;
+public static final int kPIDLoopIdx = 0;
+public static final int kTimeoutMs = 30;  
+
+//Shooter IDs
+public static final int kShooterMotor0Id = 17;
+public static final int kShooterMotor1Id = 2;
+public final static Gains kGains_Velocit  = new Gains( 0.12545, 0, 0, 1023.0/20660.0,  300,  1.00);
+
+public class Gains {
+	public final double kP;
+	public final double kI;
+	public final double kD;
+	public final double kF;
+	public final int kIzone;
+	public final double kPeakOutput;
+	
+	public Gains(double _kP, double _kI, double _kD, double _kF, int _kIzone, double _kPeakOutput){
+		kP = _kP;
+		kI = _kI;
+		kD = _kD;
+		kF = _kF;
+		kIzone = _kIzone;
+		kPeakOutput = _kPeakOutput;
+	}
+}
+
+}
+
