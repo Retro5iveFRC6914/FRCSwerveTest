@@ -1,151 +1,70 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-public class Intake extends SubsystemBase {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
+
+public class Intake extends SubsystemBase{
+    /*We need methods to intake and stop when note is detected, feed to shooter, reverse intake and feed manually.
+     * Common wisdom says that the intake should run at 2x drive speed.
+     */
+    private final CANSparkMax intake;
+    private final RelativeEncoder encoder;
+    private final SparkPIDController intakePID;
+    private final DigitalInput optical;
 
 
-  // Intake arms that open and close
-  CANSparkMax intakeInhale;
-  CANSparkMax intakeExhale;
-  AbsoluteEncoder revboreEncoder ;
-  private static Intake _instance;
+    public Intake(int intakeID, int sensorDIO) {
+        intake = new CANSparkMax(intakeID, MotorType.kBrushless);
+        intake.restoreFactoryDefaults();
 
-  private DigitalInput sensor;
+        optical = new DigitalInput(sensorDIO);
 
-  // Toggling
-  private boolean toggledUp;
-  private SparkMaxPIDController hingePIDController;
+        intake.setSmartCurrentLimit(20);
+        encoder = intake.getEncoder();
+        intakePID = intake.getPIDController();
 
-  // Spaghetti wheels
-  WPI_TalonSRX intake;
+        intakePID.setP(IntakeConstants.kP);
+        intakePID.setI(IntakeConstants.kI);
+        intakePID.setD(IntakeConstants.kD);
+        intakePID.setIZone(IntakeConstants.kIz);
+        intakePID.setFF(IntakeConstants.kFF);
+        intakePID.setOutputRange(IntakeConstants.kMinOutput, IntakeConstants.kMaxOutput);      
+    }
 
-  /** Creates a new Intake. */
-  public Intake() {
-    toggledUp = true;
-    // Hinges
-    intakeInhale = new CANSparkMax(Constants.IntakeConstants.intakeInhaleId, MotorType.kBrushless);
-    intakeExhale = new CANSparkMax(Constants.IntakeConstants.intakeExhaleId, MotorType.kBrushless);
+    public void hold() {
+        intake.setSmartCurrentLimit(5);
+        intakePID.setReference(encoder.getPosition(), ControlType.kPosition);
+    }
 
+    public void runAtVelocity(double setpoint) {
+        intake.setSmartCurrentLimit(20);
+        intakePID.setReference(setpoint, ControlType.kVelocity);
+    }
 
-    intakeInhale.restoreFactoryDefaults();
-    intakeExhale.restoreFactoryDefaults();
-    intakeInhale.setInverted(true);
-    
-    intakeExhale.follow(intakeInhale, true);
+    public void runOpenLoop(double supplier) {
+        intake.setSmartCurrentLimit(20);
+        intake.set(supplier);
+    }
 
-    intakeExhale.setIdleMode(IdleMode.kBrake);
-    intakeInhale.setIdleMode(IdleMode.kBrake);
+    public void autoIntake() {
+        if(!isNote()){
+            intakePID.setReference(IntakeConstants.kIntakeSpeed, ControlType.kVelocity);
+        }
+        else {
+            hold();
+        }
+    }
 
-    
-    
-
-    revboreEncoder = intakeInhale.getAbsoluteEncoder(Type.kDutyCycle);
-    revboreEncoder.setInverted(true);
-
-  // PIDS!
-  hingePIDController = intakeInhale.getPIDController();
-  hingePIDController.setFeedbackDevice(revboreEncoder);
-  hingePIDController.setP(Constants.IntakeConstants.hingeP);
-  hingePIDController.setI(Constants.IntakeConstants.hingeI);
-  hingePIDController.setD(Constants.IntakeConstants.hingeD);
-  hingePIDController.setOutputRange(-1.0, 1.0);
-  intakeInhale.setClosedLoopRampRate(0.5);
-  intakeExhale.setClosedLoopRampRate(0.5);
-
-
-  // Spaghetti
-  intake = new WPI_TalonSRX(Constants.IntakeConstants.intakeId);
-  intake.enableVoltageCompensation(true);
-
-  sensor = new DigitalInput(Constants.IntakeConstants.sensorId);
-}
-
-
-
-public static Intake getInstance() {
-  if (_instance == null) {
-          _instance = new Intake();
-  }
-  return _instance;
-}
-/**
-* @return Hinge encoder position. 
-*/
-public double getEncoder() {
-  return revboreEncoder.getPosition();
-}
-
-public void zeroHinge() {
-}
-/**
-* Sets the hinge power of the left and right motor.
-* @param leftPower Power of the left hinge motor.
-* @param rightPower Power of the right hinge motor.
-*/
-public void setHinge(double leftPower, double rightPower) {
-  intakeInhale.set(leftPower);
-}
-
-public void runIntake() {
-}
-/** Sets speed of the intake. */
-public void runIntake(double speed) {
-  intake.set(speed);
-}
-/** Vomits the game pieces out. */
-public void vomit() {
-  intake.set(Constants.IntakeConstants.vomitSpeed);
-}
-/** Stops intake. */
-public void stopIntake() {
-  intake.set(0);
-}
-/** Sets hinge to a position with PID looping. */
-public void hingeTo(double position) {
-  hingePIDController.setReference(position, CANSparkMax.ControlType.kPosition);
-}
-/** gets the state for the intake sensor. */
-public boolean getIntakeSensor() {
-  return !sensor.get();
-}
-
-
-
-  
-
-   /**
-   * Puts rev bore encoder positions on smartdashboard.
-   * Puts intake sensor state on smartdashboard.
-   */
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    
-    SmartDashboard.putNumber("Encoder Position", getEncoder());
-    SmartDashboard.putBoolean("intake sensor", getIntakeSensor());
-  }
-}
-    // This method will be called once per scheduler run
-
+    public boolean isNote() {
+        return optical.get();
+    }
 
     
+}

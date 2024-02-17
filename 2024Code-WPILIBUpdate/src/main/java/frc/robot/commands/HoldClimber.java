@@ -2,14 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.Commands.Climbers;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Climber;
 
-public class IntakeInhale extends Command {
-  /** Creates a new IntakeInhale. */
-  public IntakeInhale() {
+public class HoldClimber extends Command {
+  private Climber climber;
+  /** Creates a new HoldClimber. */
+  public HoldClimber(Climber climb) {
+    climber = climb;
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(climb);
   }
 
   // Called when the command is initially scheduled.
@@ -18,7 +22,9 @@ public class IntakeInhale extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    climber.hold();
+  }
 
   // Called once the command ends or is interrupted.
   @Override

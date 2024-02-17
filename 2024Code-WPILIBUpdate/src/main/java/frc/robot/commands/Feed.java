@@ -2,26 +2,25 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.Commands.Intake;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
 
-public class ShootNote extends Command {
-  private Shooter shooter;
-  private double setpoint;
-  private double timeout;
+public class Feed extends Command {
+  private Intake intake;
   private double startTime;
-  /** Creates a new RunShooterAtVelocity. */
-  public ShootNote(Shooter launchingDevice, double velocity) {
-    shooter = launchingDevice;
-    setpoint = velocity;
+  private double timeout;
+  /** Creates a new Feed. */
+  public Feed(Intake in) {
+    intake = in;
     startTime = 0.0;
     timeout = ShooterConstants.kLaunchTime;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(launchingDevice);
+    addRequirements(in);
   }
 
   // Called when the command is initially scheduled.
@@ -33,8 +32,7 @@ public class ShootNote extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    shooter.runAtSpeed(setpoint);
+    intake.runAtVelocity(IntakeConstants.kFeedSpeed);
   }
 
   // Called once the command ends or is interrupted.

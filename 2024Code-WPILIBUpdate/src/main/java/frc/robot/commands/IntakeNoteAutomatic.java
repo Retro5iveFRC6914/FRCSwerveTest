@@ -2,42 +2,37 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.Commands.Intake;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
-public class RotateForward extends Command {
- 
-  private final Intake intakeSubsystem;
-  private final double speed;
-
-  public RotateForward(intakeSubsystem intakeSubsystem, double speed) {
-    this.intakeSubsystem intakeSubsystem = intakeSubsystem;
-    this.speed = speed;
-    addRequirements(Intake.subsystem);
-
-  /** Creates a new RotateForward. */
-
+public class IntakeNoteAutomatic extends Command {
+  private Intake intake;
+  private boolean end;
+  /** Creates a new IntakeNoteAutomatic. */
+  public IntakeNoteAutomatic(Intake in) {
+    intake = in;
+    end = false;
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(in);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    public RotateForward() {
-      System.out.println("Intake.subsystem started");
-  }
-}
+  public void initialize() {}
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intakeSubsystem.setMotor(speed);
+    if(!intake.isNote()) {
+      intake.autoIntake();
+    }
+    else {
+      System.out.println("¡CAPTURE!");
+      end = true;
+    }
   }
-
-  @Override
-  public void end(boolean interrupted) {
-    intakeSubsystem.setMotor(0);
-    System.out.println("RotateForward ended");
 
   // Called once the command ends or is interrupted.
   @Override
@@ -46,6 +41,6 @@ public class RotateForward extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return end;
   }
 }

@@ -2,39 +2,36 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Shooter;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Shooter;
 
-public class ShootNote extends Command {
+public class AccelerateShooter extends Command {
   private Shooter shooter;
   private double setpoint;
-  private double timeout;
-  private double startTime;
+  private boolean end;
   /** Creates a new RunShooterAtVelocity. */
-  public ShootNote(Shooter launchingDevice, double velocity) {
+  public AccelerateShooter(Shooter launchingDevice, double velocity) {
     shooter = launchingDevice;
-    setpoint = velocity;
-    startTime = 0.0;
-    timeout = ShooterConstants.kLaunchTime;
+    end = false;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(launchingDevice);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    startTime = Timer.getFPGATimestamp();
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    shooter.runAtSpeed(setpoint);
+    if(shooter.getTopVelocity() == setpoint && shooter.getBottomVelocity() == setpoint) {
+      end = true;
+    }
+    else {
+      shooter.runAtSpeed(setpoint);
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -44,12 +41,6 @@ public class ShootNote extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double elapsed = Timer.getFPGATimestamp() - startTime;
-    if(elapsed >= timeout) {
-      return false;
-    }
-    else {
-      return true;
-    }
+    return end;
   }
 }
