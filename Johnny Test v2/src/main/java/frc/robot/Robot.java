@@ -5,11 +5,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.BasePigeon;
+import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.cameraserver.CameraServer;
 
 
@@ -31,18 +32,6 @@ public class Robot extends TimedRobot {
 
   DifferentialDrive tankDrive = new DifferentialDrive(left, right);
 
-  BasePigeon titltSensor = new BasePigeon(4,null);
-
-  double pitch = 0;
-  double yaw = 0;
-
-  public double getPitch() {
-    return pitch;
-  }
-
-  public double getYaw() {
-    return yaw;
-  }
 
   Joystick leftStick = new Joystick(0);
   Joystick rightStick = new Joystick(1);
@@ -53,6 +42,7 @@ public class Robot extends TimedRobot {
   int kPIDLoopIdx = 0;
   int kTimeoutMs = 10;
 
+  Pigeon2 tiltSensor = new Pigeon2(4);
 
   private static final String kDefaultAuto = "Default Auto";
   private static final String kAutoCenterField = "Auto Center Field";
@@ -73,10 +63,24 @@ public class Robot extends TimedRobot {
     right.setInverted(false);
     left.setInverted(true);
     CameraServer.startAutomaticCapture();
-
-
+    
+    tiltSensor.configMountPose(0, 0, 0);
 
   }
+
+  public void balanceAuto() {
+
+    //double pitch = tiltSensor.getPitch();
+    double timeElapsed = Timer.getFPGATimestamp();
+
+    if(timeElapsed < 15) {
+      tankDrive.tankDrive(-0.80, -0.80);
+    } else {
+      tankDrive.tankDrive(0.0, 0.0);
+    }
+
+    
+    }
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -87,7 +91,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    double pitch = tiltSensor.getPitch();
 
+    SmartDashboard.putNumber("pitch", pitch);
+    double yaw = tiltSensor.getYaw();
+
+    SmartDashboard.putNumber("yaw", yaw);
   }
 
   /**
@@ -107,70 +116,28 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
     timer.reset();
     timer.start();
-
+    m_leftF.setNeutralMode(NeutralMode.Brake);
+    m_leftB.setNeutralMode(NeutralMode.Brake);
+    m_rightF.setNeutralMode(NeutralMode.Brake);
+    m_rightB.setNeutralMode(NeutralMode.Brake);
+  
   }
+
+    
 
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() { //autonomous = 15
+  public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kAutoCenterField:
-        // Put custom auto code here
         break;
       case kDefaultAuto:
-
-   if(Timer.getMatchTime() > 14.5){
-          
-      tankDrive.tankDrive(-0.76, -0.7);
-
-   }else if(Timer.getMatchTime() > 13){
-
-    if(pitch < 0 && yaw == 0){
-
-    tankDrive.tankDrive(-0.66, -0.6);
-
-    }else if(pitch > 0 && yaw == 0){
-
-    tankDrive.tankDrive(0.66, 0.6);
-
+        balanceAuto();
+        break;
+    
     }
-
-    }else{
-
-      tankDrive.tankDrive(0, 0);
-
-    }
-
-    break;
   }
-
-  }
-        // Put default auto code here
-      /*if(Timer.getMatchTime() > 13.0 && Timer.getMatchTime() < 15.0){
-        tankDrive.tankDrive(-0.76,-0.7);
-      }else if(Timer.getMatchTime() > 11.0 && Timer.getMatchTime() < 13.0){
-        tankDrive.tankDrive(-0.76,0.7);
-      }else if(Timer.getMatchTime() > 9.0 && Timer.getMatchTime() < 11.0){
-        tankDrive.tankDrive(-0.76,-0.7);
-      }else {tankDrive.tankDrive(0,0);}*/
-    
-    
-    /*if(Timer.getMatchTime() > 13.0 && Timer.getMatchTime() < 15.0){
-          
-      tankDrive.tankDrive(-0.76, -0.7);
-
-    }else if(Timer.getMatchTime() > 10.0 && Timer.getMatchTime() < 13.0){
-
-      tankDrive.tankDrive(0.76, 0.7);
-
-    }else{
-
-      tankDrive.tankDrive(0, 0);
-
-    }*/
-    
-  
 
   /* This function is called once when teleop is enabled. */
   @Override
@@ -180,7 +147,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-      tankDrive.tankDrive(mechPad.getRawAxis(1), mechPad.getRawAxis(3));
+      tankDrive.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(1));
 
       double timeNow = Timer.getMatchTime();
 

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -21,6 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.cameraserver.CameraServer;
 
 
@@ -65,10 +68,38 @@ public class Robot extends TimedRobot {
    * The intake is a NEO 550 on Everybud.
    */
   WPI_TalonFX arm = new WPI_TalonFX(1);
+  WPI_TalonFX elbow = new WPI_TalonFX(2);
   CANSparkMax intake = new CANSparkMax(11, MotorType.kBrushless);
 
-  /*Pigeon2 tiltSensor = new Pigeon2(4);
 
+  /* 
+   * Declaring the Pigeon 2 gyro. Creating the variables to recieve yaw and pitch
+   * values from the sensor
+   * 
+   * Declaring the CANcoder for the Falcon 500 running the arm.
+   */
+  /*double getArmPos = 0;
+
+  CANCoder armSensor = new CANCoder(1);
+ 
+  public double getPosition() {
+    return getArmPos;
+  }
+ public void MotorLimit(){
+  if (arm.get() > 170){
+
+  arm.stopMotor();
+
+   } else if(arm.get() > ){
+arm.stopMotor();
+  }
+}
+*/
+
+
+
+  Pigeon2 tiltSensor = new Pigeon2(4);
+  
   double pitch = 0;
   double yaw = 0;
 
@@ -79,8 +110,10 @@ public class Robot extends TimedRobot {
   public double getYaw() {
     return yaw;
   }
-  */
 
+  public void gyroValues() {
+    SmartDashboard.putNumber("pitch (°)", pitch);
+  }
   /**
    * The starter code uses the most generic joystick class.
    * 
@@ -94,6 +127,9 @@ public class Robot extends TimedRobot {
   GenericHID Gpad = new GenericHID(0);
   Joystick JoystickLeft = new Joystick(1);
   Joystick JoystickRight = new Joystick(2);
+
+  AddressableLED ledStrip = new AddressableLED(9);
+  AddressableLEDBuffer ledStripBuffer = new AddressableLEDBuffer(15);
 
   /*
    * Magic numbers. Use these to adjust settings.
@@ -161,6 +197,17 @@ public class Robot extends TimedRobot {
     m_autoChooser.addOption("cube and balancing", kCubeBalanceAuto);
     SmartDashboard.putData("choose autonomous setup", m_autoChooser);
     CameraServer.startAutomaticCapture();
+
+
+    // Reuse buffer
+    // Default to a length of 60, start empty output
+    // Length is expensive to set, so only set it once, then just update data
+    ledStrip.setLength(ledStripBuffer.getLength());
+
+    // Set the data
+    ledStrip.setData(ledStripBuffer);
+    ledStrip.start();
+
     /*
      * You will need to change some of these from false to true.
      * 
@@ -181,10 +228,53 @@ public class Robot extends TimedRobot {
      */
 
     arm.setInverted(false);
+    elbow.setInverted(false);
     intake.setInverted(false);
     intake.setIdleMode(IdleMode.kBrake);
-    arm.setNeutralMode(NeutralMode.Brake);
   }
+
+  public void yellowStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 255, 255, 0);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+
+  public void purpleStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 163, 1, 255);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+
+  public void redStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 255, 0, 0);
+   }
+   
+
+  }
+
+  public void offStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 0, 0, 0);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+
   /**
    * Calculate and set the power to apply to the left and right
    * drive motors.
@@ -220,12 +310,20 @@ public class Robot extends TimedRobot {
    * 
    * @param percent
    */
-  public void setArmMotor(double percent) {
+  public void setarmMotor(double percent) {
     arm.set(percent);
     SmartDashboard.putNumber("arm power (%)", arm.getBusVoltage());
     SmartDashboard.putNumber("arm motor current (amps)", arm.getStatorCurrent());
     SmartDashboard.putNumber("arm motor temperature (C)", arm.getTemperature());
   }
+
+  public void setelbowMotor(double percent) {
+    elbow.set(percent);
+    SmartDashboard.putNumber("arm power (%)", elbow.getBusVoltage());
+    SmartDashboard.putNumber("arm motor current (amps)", elbow.getStatorCurrent());
+    SmartDashboard.putNumber("arm motor temperature (C)", elbow.getTemperature());
+  }
+
 
   /**
    * Set the arm output power.
@@ -282,12 +380,12 @@ public class Robot extends TimedRobot {
 
     if(timeElapsed < AUTO_DRIVE_TIME) {
       //drive forward
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(-AUTO_DRIVE_SPEED, 0.0);
     } else {
       //robot stops running
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.5, 0.0);
     }
@@ -301,27 +399,27 @@ public class Robot extends TimedRobot {
 
     if (timeElapsed < ARM_EXTEND_TIME_S) {
       //arm extends
-      setArmMotor(-ARM_OUTPUT_POWER);
+      setarmMotor(-ARM_OUTPUT_POWER);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S) {
       //drops gamepiece
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(autonomousIntakePower, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S) {
       //arm retracts
-      setArmMotor(ARM_OUTPUT_POWER);
+      setarmMotor(ARM_OUTPUT_POWER);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S + AUTO_DRIVE_TIME) {
       //drives backwards
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
     } else {
       //robot stops running
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     }
@@ -334,41 +432,41 @@ public class Robot extends TimedRobot {
 
     if (timeElapsed < ARM_EXTEND_TIME_S) {
       //arm extends
-      setArmMotor(ARM_OUTPUT_POWER);
+      setarmMotor(ARM_OUTPUT_POWER);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S) {
       //drops game piece
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(autonomousIntakePower, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S) {
       //arm retracts
-      setArmMotor(-ARM_OUTPUT_POWER);
+      setarmMotor(-ARM_OUTPUT_POWER);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S + AUTO_DRIVE_TIME) {
       //drives backwards
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S + AUTO_DRIVE_TIME) {
       //robot drives forward 
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S + AUTO_DRIVE_TIME + AUTO_DRIVE_TIME) {
       //balances on charging pad
-      /*if (pitch < 0) {
+      if (pitch < 0) {
         setDriveMotors(-AUTO_DRIVE_SPEED, 0.0);
       } else if (pitch > 0) {
         setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
       } else if (pitch == 0) {
         setDriveMotors(0.0, 0.0);
-      }*/
+      }
     } else {
       //robot stops running
-      setArmMotor(0.0);
+      setarmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     }
@@ -413,6 +511,7 @@ public class Robot extends TimedRobot {
     driveLRTalon.setNeutralMode(NeutralMode.Coast);
     driveRFTalon.setNeutralMode(NeutralMode.Coast);
     driveRRTalon.setNeutralMode(NeutralMode.Coast);
+
     lastGamePiece = NOTHING;
   }
 
@@ -429,7 +528,9 @@ public class Robot extends TimedRobot {
       // do nothing and let it sit where it is
       armPower = 0.0;
     }
-    setArmMotor(armPower);
+    setarmMotor(armPower);
+    setelbowMotor(armPower);
+
 
     double intakePower;
     int intakeAmps;
@@ -454,6 +555,20 @@ public class Robot extends TimedRobot {
       intakeAmps = 0;
     }
     setIntakeMotor(intakePower, intakeAmps);
+
+    if(Gpad.getRawButton(2)) {
+
+      yellowStrip();
+
+    } else if(Gpad.getRawButton(4)) {
+
+      purpleStrip();
+
+    } else {
+
+      offStrip();
+
+    }
 
     tankDrive.tankDrive(JoystickLeft.getRawAxis(1), JoystickRight.getRawAxis(1));
     

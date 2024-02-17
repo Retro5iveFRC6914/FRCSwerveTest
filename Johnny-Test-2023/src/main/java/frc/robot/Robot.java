@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.ejml.equation.Variable;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -21,6 +23,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.cameraserver.CameraServer;
 
 
@@ -67,10 +71,21 @@ public class Robot extends TimedRobot {
   WPI_TalonFX arm = new WPI_TalonFX(1);
   CANSparkMax intake = new CANSparkMax(11, MotorType.kBrushless);
 
-  /*Pigeon2 tiltSensor = new Pigeon2(4);
+
+  /* 
+   * Declaring the Pigeon 2 gyro. Creating the variables to recieve yaw and pitch
+   * values from the sensor
+   * 
+   * Declaring the CANcoder for the Falcon 500 running the arm.
+   */
+
+
+
+  Pigeon2 tiltSensor = new Pigeon2(4);
 
   double pitch = 0;
   double yaw = 0;
+  double roll = 0;
 
   public double getPitch() {
     return pitch;
@@ -79,8 +94,10 @@ public class Robot extends TimedRobot {
   public double getYaw() {
     return yaw;
   }
-  */
 
+  public double getRoll() {
+    return roll;
+  }
   /**
    * The starter code uses the most generic joystick class.
    * 
@@ -94,6 +111,9 @@ public class Robot extends TimedRobot {
   GenericHID Gpad = new GenericHID(0);
   Joystick JoystickLeft = new Joystick(1);
   Joystick JoystickRight = new Joystick(2);
+
+  AddressableLED ledStrip = new AddressableLED(9);
+  AddressableLEDBuffer ledStripBuffer = new AddressableLEDBuffer(15);
 
   /*
    * Magic numbers. Use these to adjust settings.
@@ -150,6 +170,11 @@ public class Robot extends TimedRobot {
   static final double AUTO_DRIVE_SPEED = 0.20;
 
   /**
+   * Speed once on the charging pad
+   */
+  static final double AUTO_BALANCE_SPEED = 0.05;
+
+  /**
    * This method is run once when the robot is first started up.
    */
   @Override
@@ -161,6 +186,17 @@ public class Robot extends TimedRobot {
     m_autoChooser.addOption("cube and balancing", kCubeBalanceAuto);
     SmartDashboard.putData("choose autonomous setup", m_autoChooser);
     CameraServer.startAutomaticCapture();
+
+
+    // Reuse buffer
+    // Default to a length of 60, start empty output
+    // Length is expensive to set, so only set it once, then just update data
+    ledStrip.setLength(ledStripBuffer.getLength());
+
+    // Set the data
+    ledStrip.setData(ledStripBuffer);
+    ledStrip.start();
+
     /*
      * You will need to change some of these from false to true.
      * 
@@ -183,8 +219,51 @@ public class Robot extends TimedRobot {
     arm.setInverted(false);
     intake.setInverted(false);
     intake.setIdleMode(IdleMode.kBrake);
-    arm.setNeutralMode(NeutralMode.Brake);
   }
+
+  /*
+  public void yellowStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 255, 255, 0);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+
+  public void purpleStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 163, 1, 255);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+
+  public void redStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 255, 0, 0);
+   }
+   
+
+  }
+
+  public void offStrip() {
+    for (var i = 0; i < ledStripBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      ledStripBuffer.setRGB(i, 0, 0, 0);
+   }
+   
+   ledStrip.setData(ledStripBuffer);
+
+
+  }
+*/
   /**
    * Calculate and set the power to apply to the left and right
    * drive motors.
@@ -359,19 +438,23 @@ public class Robot extends TimedRobot {
       setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
     } else if (timeElapsed < ARM_EXTEND_TIME_S + AUTO_THROW_TIME_S + ARM_EXTEND_TIME_S + AUTO_DRIVE_TIME + AUTO_DRIVE_TIME) {
       //balances on charging pad
-      /*if (pitch < 0) {
-        setDriveMotors(-AUTO_DRIVE_SPEED, 0.0);
-      } else if (pitch > 0) {
-        setDriveMotors(AUTO_DRIVE_SPEED, 0.0);
-      } else if (pitch == 0) {
-        setDriveMotors(0.0, 0.0);
-      }*/
+
+
+
     } else {
       //robot stops running
       setArmMotor(0.0);
       setIntakeMotor(0.0, INTAKE_CURRENT_LIMIT_A);
       setDriveMotors(0.0, 0.0);
     }
+  }
+
+  public void balancingFunction() {
+
+
+
+
+
   }
 
   @Override
@@ -413,6 +496,7 @@ public class Robot extends TimedRobot {
     driveLRTalon.setNeutralMode(NeutralMode.Coast);
     driveRFTalon.setNeutralMode(NeutralMode.Coast);
     driveRRTalon.setNeutralMode(NeutralMode.Coast);
+
     lastGamePiece = NOTHING;
   }
 
@@ -455,21 +539,21 @@ public class Robot extends TimedRobot {
     }
     setIntakeMotor(intakePower, intakeAmps);
 
-    tankDrive.tankDrive(JoystickLeft.getRawAxis(1), JoystickRight.getRawAxis(1));
-    
-    if (JoystickRight.getRawButton(11)) {
-      driveLFTalon.setNeutralMode(NeutralMode.Brake);
-      driveLRTalon.setNeutralMode(NeutralMode.Brake);
-      driveRFTalon.setNeutralMode(NeutralMode.Brake);
-      driveRRTalon.setNeutralMode(NeutralMode.Brake);
-    } else if(JoystickRight.getRawButton(10)) {
-      driveLFTalon.setNeutralMode(NeutralMode.Coast);
-      driveLRTalon.setNeutralMode(NeutralMode.Coast);
-      driveRFTalon.setNeutralMode(NeutralMode.Coast);
-      driveRRTalon.setNeutralMode(NeutralMode.Coast);
-    }
+   /* if(Gpad.getRawButton(2)) {
 
+      yellowStrip();
 
+    } else if(Gpad.getRawButton(4)) {
+
+      purpleStrip();
+
+    } else {
+
+      offStrip();
+
+    }*/
+
+    tankDrive.tankDrive(JoystickLeft.getRawAxis(3), JoystickRight.getRawAxis(1));
 
     /*
      * Negative signs here because the values from the analog sticks are backwards
