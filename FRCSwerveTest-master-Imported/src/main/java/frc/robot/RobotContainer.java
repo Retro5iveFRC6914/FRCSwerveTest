@@ -6,6 +6,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AccelerateShooter;
+import frc.robot.commands.Feed;
+import frc.robot.commands.HoldArm;
+import frc.robot.commands.HoldIntake;
+import frc.robot.commands.IntakeNoteAutomatic;
+import frc.robot.commands.RunArmClosedLoop;
+import frc.robot.commands.RunArmOpenLoop;
+import frc.robot.commands.RunIntakeOpenLoop;
+import frc.robot.commands.RunShooterAtVelocity;
+import frc.robot.commands.ShootNote;
+import frc.robot.commands.TeleopSwerve;
 
 import frc.robot.autos.*;
 import frc.robot.commands.*;
@@ -16,7 +27,7 @@ import frc.robot.subsystems.*;
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
- */
+ */ 
 public class RobotContainer {
     /* Controllers */
     private final XboxController driver = new XboxController(0);
@@ -28,17 +39,17 @@ public class RobotContainer {
 
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, XboxController.Button.kY.value);
-    private final JoystickButton robotCentric = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
-
+    private final JoystickButton robotCentric = new JoystickButton(driver, XboxController.Button.kA.value);
+    private final JoystickButton runArm = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     /* Subsystems */
     private final Swerve s_Swerve = new Swerve();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    public () {
+    public RobotContainer () {
         s_Swerve.setDefaultCommand(
             new TeleopSwerve(
                 s_Swerve, 
-          RobotContainer      () -> -driver.getRawAxis(translationAxis), 
+                () -> -driver.getRawAxis(translationAxis),
                 () -> -driver.getRawAxis(strafeAxis), 
                 () -> -driver.getRawAxis(rotationAxis), 
                 () -> robotCentric.getAsBoolean()
@@ -58,6 +69,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
+        runArm.onTrue(new RunArmClosedLoop(null, rotationAxis));
     }
 
     /**
