@@ -127,6 +127,8 @@ public final class Constants {
             public static final Rotation2d angleOffset = Rotation2d.fromDegrees(9.76);
             public static final SwerveModuleConstants constants = 
                 new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
+               
+                
         }
 
     
@@ -263,6 +265,18 @@ public static final class DriverConstants {
             public static final double kMaxOutput = 1;
             public static final double kMaxRPM = 11000;    
           }
+
+          public static final class OIConstants {
+            public static final int kDriverControllerPort = 0;
+            public static final double kDriveDeadband = 0.1;
+            public static final int kOperatorControllerPort = 1;
+             }
+
+             // operator constants
+
+            public static final class OperatorConstants {
+                public static final double kManoeuvreSpeed = 0.4; 
+            }
     }
 
   
